@@ -33,12 +33,11 @@ void LogicalCalculator(std::string input, std::string output)
 	{
 		std::stringstream compExprSStr, valSimpleExprSStr;
 		std::string exprStr;
-
 		compExprSStr << CompoundExprMap[it];
-		exprStr = StrToExprStr(compExprSStr);
+		exprStr = StrToExprStr(compExprSStr, it);
 
 		std::shared_ptr<Expression> y = Parser(exprStr);
-		SimpleExprMap[it] = y->ValueExpr();
+		SimpleExprMap[it] = y->ValueExpression();
 
 		if (SimpleExprMap[it] == valueNotDefine)
 		{
@@ -49,12 +48,13 @@ void LogicalCalculator(std::string input, std::string output)
 	}
 }
 
-std::string StrToExprStr(std::stringstream& compExprSStr)
+std::string StrToExprStr(std::stringstream& compExprSStr, std::string it)
 {
+
 	std::string exprStr, A, LogicalOperator;
 	while (compExprSStr >> A)
 	{
-		std::unordered_map<std::string, int>::const_iterator got = SimpleExprMap.find(A);
+		std::unordered_map<std::string, int>::const_iterator got = SimpleExprMap.find(A);//n
 		if (got != SimpleExprMap.end())
 		{
 			std::string tmp;
@@ -70,20 +70,21 @@ std::string StrToExprStr(std::stringstream& compExprSStr)
 			{
 				std::string tmpStr;
 				std::string compoundExprStr = CompoundExprMap[A];
-
 				getline(compExprSStr, tmpStr);
 				compExprSStr.clear();
-
 				std::stringstream tmpSStr;
 				tmpSStr.str(compoundExprStr);
 				std::string exprStr;
-				exprStr = StrToExprStr(tmpSStr);
-
+				if (A == it)
+				{
+					SimpleExprMap[A] = valueNotDefine;
+				}
+				exprStr = StrToExprStr(tmpSStr, it);
 				std::shared_ptr<Expression> y = Parser(exprStr);
 				std::stringstream tmpVal;
 				std::string tmp1;
 				std::stringstream tmp2;
-				tmpVal << y->ValueExpr();
+				tmpVal << y->ValueExpression();
 				int valExpr;
 				tmpVal >> tmp1;
 				tmp2 << tmp1;
@@ -93,6 +94,7 @@ std::string StrToExprStr(std::stringstream& compExprSStr)
 				compExprSStr.str(s);
 				continue;
 			}
+
 			std::string tmp;
 			std::stringstream valueSimpleExpr;
 			valueSimpleExpr << valueNotDefine;
@@ -100,7 +102,9 @@ std::string StrToExprStr(std::stringstream& compExprSStr)
 			exprStr += tmp;
 		}
 		if (compExprSStr >> LogicalOperator)
+		{
 			exprStr += LogicalOperator;
+		}
 	}
 	return exprStr;
 }
@@ -109,11 +113,14 @@ std::string StrToExprStr(std::stringstream& compExprSStr)
 
 int main(int argc, char *argv[])
 {
-	LogicalCalculator("testInput.txt", "testOutput.txt");
+	//LogicalCalculator("testInput.txt", "testOutput.txt");//потом удалю
 
 	if (argc > 2)
+	{
 		LogicalCalculator(argv[1], argv[2]);
+	}
 
 
 	return 0;
 }
+
